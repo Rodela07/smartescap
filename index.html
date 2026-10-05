@@ -1,0 +1,3052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Escape — Interactive Evacuation Route Simulator</title>
+  <meta name="description" content="AI DevFest Competition - High Performance Interactive Browser-based Building Evacuation Route Simulator with Dynamic Shortest-Path Rerouting and Bilingual UI.">
+
+  <!-- Modern Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+/* ==========================================================================
+   SMART ESCAPE - Interactive Evacuation Route Simulator
+   Design System & Cybernetic Command Center Stylesheet
+   AI DevFest 2026 Edition
+   ========================================================================== */
+
+:root {
+  /* Color Palette - Cyber Dark & Neon Accents */
+  --bg-main: #07090e;
+  --bg-surface: rgba(13, 17, 28, 0.85);
+  --bg-surface-elevated: rgba(20, 27, 45, 0.9);
+  --bg-glass: rgba(15, 23, 42, 0.65);
+  --border-subtle: rgba(148, 163, 184, 0.12);
+  --border-active: rgba(56, 189, 248, 0.4);
+  --border-danger: rgba(239, 68, 68, 0.4);
+
+  /* Primary Neon Colors */
+  --neon-cyan: #00f2fe;
+  --neon-blue: #38bdf8;
+  --neon-emerald: #10b981;
+  --neon-emerald-glow: rgba(16, 185, 129, 0.3);
+  --neon-purple: #818cf8;
+  --hazard-crimson: #ef4444;
+  --hazard-amber: #f59e0b;
+
+  /* Typography */
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+  /* Elevation & Shadows */
+  --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --shadow-glow-cyan: 0 0 24px rgba(0, 242, 254, 0.25);
+  --shadow-glow-emerald: 0 0 24px rgba(16, 185, 129, 0.25);
+  --shadow-glow-danger: 0 0 24px rgba(239, 68, 68, 0.25);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+}
+
+/* High Contrast Mode Overrides */
+body.high-contrast {
+  --bg-main: #000000;
+  --bg-surface: #0a0a0a;
+  --bg-surface-elevated: #141414;
+  --border-subtle: #ffffff;
+  --border-active: #00ffff;
+  --text-main: #ffffff;
+  --text-muted: #e2e8f0;
+  --text-dim: #cbd5e1;
+}
+
+/* Reset & Box Sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Background Dotted Surface Canvas */
+#dotted-surface-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+/* App Root Grid Container */
+.app-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 1720px;
+  margin: 0 auto;
+  padding: 14px 20px 20px 20px;
+  gap: 14px;
+}
+
+/* Glassmorphism Card Utility */
+.glass-card {
+  background: var(--bg-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 22px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-logo-icon {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: var(--shadow-glow-cyan);
+}
+
+.brand-titles h1 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #ffffff, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-devfest {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+}
+
+.brand-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Button Component System */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: rgba(30, 41, 59, 0.7);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.btn:hover {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: var(--border-active);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4);
+}
+
+.btn-emerald {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #ffffff;
+}
+
+.btn-emerald:hover {
+  border-color: var(--neon-emerald);
+  box-shadow: var(--shadow-glow-emerald);
+}
+
+.btn-danger-outline {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--border-danger);
+  color: #fca5a5;
+}
+
+.btn-danger-outline:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ffffff;
+  border-color: var(--hazard-crimson);
+}
+
+.btn-icon-only {
+  padding: 8px 10px;
+  font-size: 1rem;
+}
+
+/* Language Segmented Toggle */
+.lang-toggle-group {
+  display: flex;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 3px;
+}
+
+.lang-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 5px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lang-btn.active {
+  background: rgba(56, 189, 248, 0.2);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+/* ==========================================================================
+   MAIN DASHBOARD LAYOUT
+   ========================================================================== */
+.main-dashboard {
+  display: grid;
+  grid-template-columns: 390px 1fr;
+  gap: 14px;
+  flex: 1;
+}
+
+@media (max-width: 1080px) {
+  .main-dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Left Sidebar Controls */
+.sidebar-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.panel-section {
+  padding: 16px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 8px;
+}
+
+.panel-header h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-header h2 .icon {
+  color: var(--neon-cyan);
+}
+
+/* Dataset Management UI */
+.file-dropzone-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.preset-select-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.custom-select {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  padding: 8px 12px;
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.custom-select:focus {
+  border-color: var(--neon-cyan);
+}
+
+.building-meta-badge {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.meta-label {
+  color: var(--text-muted);
+}
+
+.meta-value {
+  font-weight: 700;
+  color: var(--text-main);
+  font-family: var(--font-mono);
+}
+
+.status-pill {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.status-pill.valid {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--neon-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.status-pill.invalid {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--hazard-crimson);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* Start Location Selector */
+.start-selector-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.start-hint-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.start-pills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 110px;
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+
+.start-pill-btn {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.start-pill-btn:hover {
+  border-color: var(--neon-cyan);
+  background: rgba(56, 189, 248, 0.15);
+}
+
+.start-pill-btn.active {
+  background: rgba(0, 242, 254, 0.2);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+}
+
+.start-pill-btn.blocked {
+  opacity: 0.35;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+/* Hazard Management Station */
+.hazard-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 10px;
+  gap: 4px;
+}
+
+.hazard-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hazard-tab-btn.active {
+  color: var(--neon-cyan);
+  border-bottom-color: var(--neon-cyan);
+}
+
+.hazard-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 170px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.hazard-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.hazard-item-row.is-blocked {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.hazard-toggle-btn {
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+}
+
+.hazard-summary-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   CENTER / RIGHT GRAPH & MAP VIEWPORT
+   ========================================================================== */
+.graph-viewport-panel {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  min-height: 520px;
+}
+
+.map-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(13, 17, 28, 0.7);
+  z-index: 2;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.map-building-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.building-display-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.map-floating-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.svg-canvas-wrapper {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 440px;
+  background: radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.25) 0%, rgba(7, 9, 14, 0.8) 100%);
+  overflow: hidden;
+}
+
+#building-graph-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Active Path Flow Animation */
+@keyframes flowDash {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+.route-flow-line {
+  animation: flowDash 1.2s linear infinite;
+}
+
+/* Node pulse when selected */
+@keyframes nodePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.node-selected-start {
+  animation: nodePulse 2s ease-in-out infinite;
+}
+
+/* Map Bottom Hint & Legend Bar */
+.map-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(13, 17, 28, 0.7);
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.legend-dot.room { background: #4f46e5; }
+.legend-dot.junction { background: #06b6d4; }
+.legend-dot.exit { background: #10b981; }
+.legend-dot.route { background: #00f2fe; box-shadow: 0 0 6px #00f2fe; }
+.legend-dot.blocked { background: #ef4444; }
+
+/* ==========================================================================
+   ROUTE TELEMETRY & RESULTS STATION
+   ========================================================================== */
+.telemetry-station {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.telemetry-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Status Banner States */
+.route-status-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.route-status-banner.status-FOUND {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #34d399;
+  box-shadow: var(--shadow-glow-emerald);
+}
+
+.route-status-banner.status-NO_ROUTE {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #f87171;
+  box-shadow: var(--shadow-glow-danger);
+}
+
+.route-status-banner.status-START_BLOCKED {
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+}
+
+.route-status-banner.status-INVALID_START {
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #cbd5e1;
+}
+
+.telemetry-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .telemetry-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.metric-card {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.metric-val {
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+}
+
+.metric-val.highlight-cyan { color: var(--neon-cyan); }
+.metric-val.highlight-emerald { color: var(--neon-emerald); }
+
+/* Route Sequence Path Breadcrumb */
+.sequence-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+
+.sequence-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.sequence-flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sequence-node-pill {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sequence-node-pill.is-start {
+  border-color: var(--neon-cyan);
+  background: rgba(0, 242, 254, 0.15);
+  color: var(--neon-cyan);
+}
+
+.sequence-node-pill.is-exit {
+  border-color: var(--neon-emerald);
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--neon-emerald);
+}
+
+.sequence-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.step-cost-label {
+  font-size: 0.66rem;
+  font-family: var(--font-mono);
+  color: var(--neon-cyan);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   MODAL DIALOGS (Test Suite & Validation Errors)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-box {
+  max-width: 680px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 12px;
+}
+
+.modal-header h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-content {
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.test-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.test-row-item {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.test-row-item.passed {
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.test-row-item.failed {
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.test-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.test-badge.pass {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--neon-emerald);
+  border: 1px solid var(--neon-emerald);
+}
+
+.test-badge.fail {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--hazard-crimson);
+  border: 1px solid var(--hazard-crimson);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.4);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Background 3D Dotted Surface Particle Canvas -->
+  <canvas id="dotted-surface-canvas"></canvas>
+
+  <div class="app-container">
+    <!-- ====================================================================
+         HEADER
+         ==================================================================== -->
+    <header class="app-header glass-card">
+      <div class="brand-section">
+        <div class="brand-logo-icon">⚡</div>
+        <div class="brand-titles">
+          <h1>
+            <span data-i18n="app_title">Smart Escape</span>
+            <span class="badge-devfest" data-i18n="badge_competition">AI DevFest 2026</span>
+          </h1>
+          <div class="brand-subtitle" data-i18n="app_subtitle">Interactive Evacuation Route Simulator</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Live Automated Compliance Test Suite Button -->
+        <button id="btn-run-tests" class="btn btn-primary" data-i18n="btn_run_tests">
+          <span>🧪</span> <span>Run Test Suite</span>
+        </button>
+
+        <!-- Evacuation Walkthrough Player -->
+        <button id="btn-simulation-walkthrough" class="btn" data-i18n="btn_walkthrough">
+          <span>▶</span> <span>Simulate Evacuation</span>
+        </button>
+
+        <!-- Reset Button -->
+        <button id="btn-reset-initial" class="btn btn-danger-outline" data-i18n="btn_reset">
+          <span>↺</span> <span>Reset Initial State</span>
+        </button>
+
+        <!-- Export PNG -->
+        <button id="btn-export-png" class="btn" data-i18n="btn_export_png">
+          <span>📷</span> <span>Export Map PNG</span>
+        </button>
+
+        <!-- Audio FX Toggle -->
+        <button id="btn-toggle-audio" class="btn" data-i18n="btn_audio_on">
+          Sound Effects: ON
+        </button>
+
+        <!-- High Contrast Mode Toggle -->
+        <button id="btn-toggle-contrast" class="btn btn-icon-only" title="High Contrast Mode">
+          🌓
+        </button>
+
+        <!-- Bilingual Language Switcher (English / বাংলা) -->
+        <div class="lang-toggle-group">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="bn">বাংলা</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         MAIN WORKSPACE DASHBOARD
+         ==================================================================== -->
+    <main class="main-dashboard">
+      <!-- Left Control Panel -->
+      <aside class="sidebar-controls">
+        <!-- 1. Dataset Management Card -->
+        <section class="glass-card panel-section">
+          <div class="panel-header">
+            <h2 data-i18n="panel_dataset">
+              <span class="icon">📁</span> Building Dataset
+            </h2>
+          </div>
+
+          <div class="file-dropzone-row">
+            <input type="file" id="file-input" class="file-input-hidden" accept=".json,application/json">
+            <button id="btn-import-file" class="btn btn-primary" style="width: 100%;" data-i18n="import_json_btn">
+              <span>📤</span> <span>Import JSON File</span>
+            </button>
+          </div>
+
+          <div class="preset-select-row">
+            <label for="preset-selector" style="font-size: 0.76rem; color: var(--text-muted);" data-i18n="choose_preset">
+              Load Preset Scenario:
+            </label>
+            <select id="preset-selector" class="custom-select">
+              <option value="sample" data-i18n="preset_sample">East Annex (Official Sample)</option>
+              <option value="tiebreak" data-i18n="preset_tiebreak">Research Facility (Tie-Break Test)</option>
+              <option value="complex" data-i18n="preset_complex">Metropolis Center (Complex Grid)</option>
+              <option value="disconnected" data-i18n="preset_disconnected">Isolated Annex (Disconnected)</option>
+            </select>
+          </div>
+
+          <div class="building-meta-badge">
+            <div class="meta-row">
+              <span class="meta-label" data-i18n="label_building_name">Building:</span>
+              <span id="meta-building-name" class="meta-value">--</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label" data-i18n="label_validation_status">Validation:</span>
+              <span id="meta-validation-status" class="status-pill valid">VALID SCHEMA</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label"><span data-i18n="nodes_count">Nodes</span> / <span data-i18n="edges_count">Corridors</span>:</span>
+              <span class="meta-value"><span id="meta-nodes-count">0</span> / <span id="meta-edges-count">0</span></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Starting Location Card -->
+        <section class="glass-card panel-section">
+          <div class="panel-header">
+            <h2 data-i18n="panel_start">
+              <span class="icon">📍</span> Starting Location
+            </h2>
+          </div>
+          <div class="start-selector-box">
+            <div class="start-hint-text" data-i18n="start_hint">
+              (Only unblocked rooms and junctions can be selected)
+            </div>
+            <div id="start-pills-container" class="start-pills-grid">
+              <!-- Dynamically Populated -->
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Hazard Management Station Card -->
+        <section class="glass-card panel-section">
+          <div class="panel-header">
+            <h2 data-i18n="panel_hazards">
+              <span class="icon">⚠️</span> Hazard Management
+            </h2>
+            <button id="btn-clear-hazards" class="btn" style="padding: 3px 8px; font-size: 0.72rem;" data-i18n="btn_clear_hazards">
+              Clear All
+            </button>
+          </div>
+
+          <div class="hazard-tabs">
+            <button class="hazard-tab-btn active" data-tab="nodes" data-i18n="hazard_tab_nodes">Rooms & Junctions</button>
+            <button class="hazard-tab-btn" data-tab="edges" data-i18n="hazard_tab_edges">Corridors</button>
+            <button class="hazard-tab-btn" data-tab="exits" data-i18n="hazard_tab_exits">Exits</button>
+          </div>
+
+          <div id="hazard-items-list" class="hazard-items-list">
+            <!-- Dynamically Populated -->
+          </div>
+
+          <div class="hazard-summary-bar">
+            <span><span data-i18n="hazard_nodes_blocked">Blocked Nodes</span>: <strong id="count-blocked-nodes" style="color: var(--hazard-crimson);">0</strong></span>
+            <span><span data-i18n="hazard_edges_blocked">Blocked Corridors</span>: <strong id="count-blocked-edges" style="color: var(--hazard-amber);">0</strong></span>
+            <span><span data-i18n="hazard_exits_closed">Closed Exits</span>: <strong id="count-closed-exits" style="color: var(--neon-purple);">0</strong></span>
+          </div>
+        </section>
+      </aside>
+
+      <!-- Center / Right Interactive Map & Graph Viewport -->
+      <section class="glass-card graph-viewport-panel">
+        <div class="map-top-bar">
+          <div class="map-building-title">
+            <span style="font-size: 1.2rem;">🏢</span>
+            <span id="display-building-name" class="building-display-name">Building Map</span>
+          </div>
+
+          <div class="map-floating-controls">
+            <button id="btn-zoom-in" class="btn btn-icon-only" title="Zoom In">+</button>
+            <button id="btn-zoom-out" class="btn btn-icon-only" title="Zoom Out">−</button>
+            <button id="btn-zoom-fit" class="btn" data-i18n="zoom_fit">Fit Map</button>
+            <button id="btn-zoom-reset" class="btn" data-i18n="zoom_reset">Reset View</button>
+          </div>
+        </div>
+
+        <div class="svg-canvas-wrapper">
+          <svg id="building-graph-svg" xmlns="http://www.w3.org/2000/svg">
+            <!-- SVG Map rendered by JavaScript -->
+          </svg>
+        </div>
+
+        <div class="map-bottom-bar">
+          <div class="map-hint" data-i18n="graph_hint">
+            💡 Click any room/junction to set as Start. Click items in hazard list or nodes to toggle obstacles.
+          </div>
+
+          <div class="map-legend">
+            <div class="legend-item"><div class="legend-dot room"></div> <span data-i18n="legend_room">Room</span></div>
+            <div class="legend-item"><div class="legend-dot junction"></div> <span data-i18n="legend_junction">Junction</span></div>
+            <div class="legend-item"><div class="legend-dot exit"></div> <span data-i18n="legend_exit">Exit</span></div>
+            <div class="legend-item"><div class="legend-dot route"></div> <span data-i18n="legend_route">Route</span></div>
+            <div class="legend-item"><div class="legend-dot blocked"></div> <span data-i18n="legend_blocked">Blocked</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ====================================================================
+         BOTTOM ROUTE TELEMETRY & COMMAND STATION
+         ==================================================================== -->
+    <footer class="glass-card telemetry-station">
+      <div class="telemetry-header-row">
+        <div id="route-status-banner" class="route-status-banner status-FOUND">
+          OPTIMAL ROUTE COMPUTED
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-muted);">
+          Algorithm: <strong style="color: var(--neon-cyan); font-family: var(--font-mono);">Dijkstra + Lexicographical Tie-Break</strong>
+        </div>
+      </div>
+
+      <div class="telemetry-cards-grid">
+        <div class="metric-card">
+          <span class="metric-label" data-i18n="card_start_node">Origin Node</span>
+          <span id="telemetry-start-node" class="metric-val highlight-cyan">--</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label" data-i18n="card_destination_exit">Evacuation Exit</span>
+          <span id="telemetry-exit-node" class="metric-val highlight-emerald">--</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label" data-i18n="card_total_cost">Total Route Cost</span>
+          <span id="telemetry-total-cost" class="metric-val">--</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label" data-i18n="card_total_hops">Corridor Hops</span>
+          <span id="telemetry-total-hops" class="metric-val">--</span>
+        </div>
+      </div>
+
+      <div class="sequence-container">
+        <div class="sequence-header">
+          <span data-i18n="route_sequence_label">Evacuation Node Sequence:</span>
+          <span data-i18n="route_step_breakdown">Step Cost Breakdown:</span>
+        </div>
+        <div id="route-sequence-flow" class="sequence-flow">
+          <!-- Dynamically populated sequence breadcrumbs -->
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ====================================================================
+       MODAL: COMPLIANCE TEST SUITE RUNNER
+       ==================================================================== -->
+  <div id="modal-test-suite" class="modal-overlay">
+    <div class="modal-box glass-card">
+      <div class="modal-header">
+        <h3 data-i18n="modal_tests_title">
+          <span>🧪</span> AI DevFest Automated Compliance Suite
+        </h3>
+        <button id="btn-close-tests" class="btn btn-icon-only">✕</button>
+      </div>
+      <div class="modal-content">
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;" data-i18n="modal_tests_desc">
+          Verifies all 5 mandatory competition specifications plus tie-breaking and edge cases in real-time.
+        </p>
+        <div id="test-results-list" class="test-results-list">
+          <!-- Dynamic test results -->
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button id="btn-exec-all-tests" class="btn btn-primary" data-i18n="test_run_all">Run All Test Scenarios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL: DATASET VALIDATION ERROR
+       ==================================================================== -->
+  <div id="modal-validation-error" class="modal-overlay">
+    <div class="modal-box glass-card" style="border-color: var(--border-danger);">
+      <div class="modal-header">
+        <h3 style="color: var(--hazard-crimson);" data-i18n="validation_error_title">
+          <span>⚠️</span> Dataset Validation Errors Detected
+        </h3>
+        <button id="btn-close-val-modal" class="btn btn-icon-only">✕</button>
+      </div>
+      <div class="modal-content">
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;" data-i18n="validation_error_desc">
+          The uploaded file could not be loaded because it violated the Smart Escape schema rules:
+        </p>
+        <ul id="validation-error-list" style="padding-left: 20px; font-size: 0.8rem; font-family: var(--font-mono);">
+          <!-- Dynamic validation error list -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Self-Contained JavaScript -->
+  <script>
+/**
+ * Smart Escape — Interactive Evacuation Route Simulator
+ * Standalone Zero-Dependency Bundle (Vanilla JS, CSS, HTML5)
+ * Works 100% Offline, on Vercel, and directly via file:/// double-click!
+ */
+
+(function () {
+  'use strict';
+
+  // ==========================================
+  // PRESET DATASETS (Embedded for 100% Offline & file:// compatibility)
+  // ==========================================
+  const PRESET_SAMPLE = {
+    "building": "East Annex - Practice Building",
+    "nodes": [
+      { "id": "R1", "label": "Room 101", "type": "room", "x": 60, "y": 65 },
+      { "id": "R2", "label": "Room 102", "type": "room", "x": 60, "y": 185 },
+      { "id": "C1", "label": "Junction A", "type": "junction", "x": 190, "y": 65 },
+      { "id": "C2", "label": "Junction B", "type": "junction", "x": 325, "y": 65 },
+      { "id": "C3", "label": "Junction C", "type": "junction", "x": 190, "y": 185 },
+      { "id": "C4", "label": "Junction D", "type": "junction", "x": 325, "y": 185 },
+      { "id": "E1", "label": "North Exit", "type": "exit", "x": 445, "y": 65 },
+      { "id": "E2", "label": "South Exit", "type": "exit", "x": 445, "y": 185 }
+    ],
+    "edges": [
+      { "id": "L01", "from": "R1", "to": "C1", "cost": 2 },
+      { "id": "L02", "from": "C1", "to": "C2", "cost": 3 },
+      { "id": "L03", "from": "C2", "to": "E1", "cost": 2 },
+      { "id": "L04", "from": "R1", "to": "R2", "cost": 4 },
+      { "id": "L05", "from": "R2", "to": "C3", "cost": 2 },
+      { "id": "L06", "from": "C3", "to": "C4", "cost": 3 },
+      { "id": "L07", "from": "C4", "to": "E2", "cost": 2 },
+      { "id": "L08", "from": "C1", "to": "C3", "cost": 4 },
+      { "id": "L09", "from": "C2", "to": "C4", "cost": 3 }
+    ],
+    "initial_state": {
+      "blocked_nodes": [],
+      "blocked_edges": [],
+      "closed_exits": []
+    }
+  };
+
+  const PRESET_TIEBREAK = {
+    "building": "Research Facility - Tie-Breaking Test Arena",
+    "nodes": [
+      { "id": "R0", "label": "Control Room", "type": "room", "x": 50, "y": 150 },
+      { "id": "J1", "label": "North Hub", "type": "junction", "x": 200, "y": 80 },
+      { "id": "J2", "label": "South Hub", "type": "junction", "x": 200, "y": 220 },
+      { "id": "E1", "label": "Exit Alpha", "type": "exit", "x": 380, "y": 80 },
+      { "id": "E2", "label": "Exit Beta", "type": "exit", "x": 380, "y": 220 }
+    ],
+    "edges": [
+      { "id": "E_01", "from": "R0", "to": "J1", "cost": 3 },
+      { "id": "E_02", "from": "J1", "to": "E1", "cost": 3 },
+      { "id": "E_03", "from": "R0", "to": "J2", "cost": 3 },
+      { "id": "E_04", "to": "E2", "from": "J2", "cost": 3 }
+    ],
+    "initial_state": {
+      "blocked_nodes": [],
+      "blocked_edges": [],
+      "closed_exits": []
+    }
+  };
+
+  const PRESET_COMPLEX = {
+    "building": "Metropolis Innovation Center (Complex Multilevel)",
+    "nodes": [
+      { "id": "R101", "label": "AI Lab 101", "type": "room", "x": 50, "y": 60 },
+      { "id": "R102", "label": "Robotics Lab", "type": "room", "x": 50, "y": 160 },
+      { "id": "R103", "label": "Server Room", "type": "room", "x": 50, "y": 260 },
+      { "id": "R104", "label": "Bio Lab", "type": "room", "x": 50, "y": 360 },
+      { "id": "J01", "label": "Corridor Hub A", "type": "junction", "x": 160, "y": 60 },
+      { "id": "J02", "label": "Corridor Hub B", "type": "junction", "x": 160, "y": 160 },
+      { "id": "J03", "label": "Corridor Hub C", "type": "junction", "x": 160, "y": 260 },
+      { "id": "J04", "label": "Corridor Hub D", "type": "junction", "x": 160, "y": 360 },
+      { "id": "J05", "label": "Central Atrium N", "type": "junction", "x": 280, "y": 110 },
+      { "id": "J06", "label": "Central Atrium S", "type": "junction", "x": 280, "y": 310 },
+      { "id": "J07", "label": "Stairwell East", "type": "junction", "x": 400, "y": 110 },
+      { "id": "J08", "label": "Stairwell West", "type": "junction", "x": 400, "y": 310 },
+      { "id": "E_N1", "label": "North Emergency Exit", "type": "exit", "x": 520, "y": 60 },
+      { "id": "E_E1", "label": "East Main Exit", "type": "exit", "x": 520, "y": 210 },
+      { "id": "E_S1", "label": "South Heli Exit", "type": "exit", "x": 520, "y": 360 }
+    ],
+    "edges": [
+      { "id": "ED01", "from": "R101", "to": "J01", "cost": 2 },
+      { "id": "ED02", "from": "R102", "to": "J02", "cost": 2 },
+      { "id": "ED03", "from": "R103", "to": "J03", "cost": 2 },
+      { "id": "ED04", "from": "R104", "to": "J04", "cost": 2 },
+      { "id": "ED05", "from": "J01", "to": "J02", "cost": 3 },
+      { "id": "ED06", "from": "J02", "to": "J03", "cost": 3 },
+      { "id": "ED07", "from": "J03", "to": "J04", "cost": 3 },
+      { "id": "ED08", "from": "J01", "to": "J05", "cost": 4 },
+      { "id": "ED09", "from": "J02", "to": "J05", "cost": 3 },
+      { "id": "ED10", "from": "J03", "to": "J06", "cost": 3 },
+      { "id": "ED11", "from": "J04", "to": "J06", "cost": 4 },
+      { "id": "ED12", "from": "J05", "to": "J06", "cost": 5 },
+      { "id": "ED13", "from": "J05", "to": "J07", "cost": 3 },
+      { "id": "ED14", "from": "J06", "to": "J08", "cost": 3 },
+      { "id": "ED15", "from": "J07", "to": "E_N1", "cost": 2 },
+      { "id": "ED16", "from": "J07", "to": "E_E1", "cost": 3 },
+      { "id": "ED17", "from": "J08", "to": "E_E1", "cost": 3 },
+      { "id": "ED18", "from": "J08", "to": "E_S1", "cost": 2 }
+    ],
+    "initial_state": {
+      "blocked_nodes": ["J06"],
+      "blocked_edges": ["ED08"],
+      "closed_exits": []
+    }
+  };
+
+  const PRESET_DISCONNECTED = {
+    "building": "Isolated Annex - Disconnected Graph Test",
+    "nodes": [
+      { "id": "R_ISO1", "label": "Isolated Room A", "type": "room", "x": 60, "y": 60 },
+      { "id": "J_ISO1", "label": "Isolated Junction", "type": "junction", "x": 160, "y": 60 },
+      { "id": "R_MAIN", "label": "Main Room B", "type": "room", "x": 60, "y": 200 },
+      { "id": "J_MAIN", "label": "Main Junction", "type": "junction", "x": 180, "y": 200 },
+      { "id": "E_MAIN", "label": "Main Safe Exit", "type": "exit", "x": 320, "y": 200 }
+    ],
+    "edges": [
+      { "id": "L_ISO", "from": "R_ISO1", "to": "J_ISO1", "cost": 3 },
+      { "id": "L_M1", "from": "R_MAIN", "to": "J_MAIN", "cost": 2 },
+      { "id": "L_M2", "from": "J_MAIN", "to": "E_MAIN", "cost": 2 }
+    ],
+    "initial_state": {
+      "blocked_nodes": [],
+      "blocked_edges": [],
+      "closed_exits": []
+    }
+  };
+
+  // ==========================================
+  // I18N TRANSLATIONS
+  // ==========================================
+  const TRANSLATIONS = {
+    en: {
+      app_title: "Smart Escape",
+      app_subtitle: "Interactive Evacuation Route Simulator",
+      badge_competition: "AI DevFest 2026 Edition",
+      btn_run_tests: "Run Test Suite",
+      btn_reset: "Reset Initial State",
+      btn_export_png: "Export Map PNG",
+      btn_audio_on: "Sound Effects: ON",
+      btn_audio_off: "Sound Effects: OFF",
+      btn_high_contrast: "High Contrast",
+      btn_walkthrough: "Simulate Evacuation",
+      btn_pause_walkthrough: "Pause Simulation",
+      panel_dataset: "Building Dataset",
+      panel_start: "Starting Location",
+      panel_hazards: "Hazard Management",
+      panel_route_telemetry: "Evacuation Telemetry",
+      panel_graph_legend: "Map Legend",
+      import_json_btn: "Import JSON File",
+      choose_preset: "Load Preset Scenario:",
+      preset_sample: "East Annex (Official Sample)",
+      preset_tiebreak: "Research Facility (Tie-Break Test)",
+      preset_complex: "Metropolis Center (Complex Grid)",
+      preset_disconnected: "Isolated Annex (Disconnected)",
+      label_building_name: "Building:",
+      label_validation_status: "Validation:",
+      status_valid: "VALID SCHEMA",
+      status_invalid: "VALIDATION FAILED",
+      nodes_count: "Nodes",
+      edges_count: "Corridors",
+      select_start_prompt: "Select evacuation start room or junction:",
+      start_hint: "(Only unblocked rooms and junctions can be selected)",
+      selected_start_label: "Active Start:",
+      none_selected: "None Selected",
+      node_type_room: "Room",
+      node_type_junction: "Junction",
+      node_type_exit: "Exit",
+      hazard_tab_nodes: "Rooms & Junctions",
+      hazard_tab_edges: "Corridors",
+      hazard_tab_exits: "Exits",
+      hazard_block_node: "Block Node",
+      hazard_unblock_node: "Unblock Node",
+      hazard_block_edge: "Block Corridor",
+      hazard_unblock_edge: "Unblock Corridor",
+      hazard_close_exit: "Close Exit",
+      hazard_open_exit: "Open Exit",
+      btn_clear_hazards: "Clear All",
+      btn_restore_initial: "Restore Initial State",
+      hazard_count_summary: "Active Hazards:",
+      hazard_nodes_blocked: "Blocked Nodes",
+      hazard_edges_blocked: "Blocked Corridors",
+      hazard_exits_closed: "Closed Exits",
+      status_route_found: "OPTIMAL ROUTE COMPUTED",
+      status_no_route: "No route available",
+      status_start_blocked: "Starting location blocked",
+      status_invalid_start: "Please select a valid starting location",
+      status_exit_as_start: "Exits cannot be chosen as starting locations",
+      status_invalid_data: "Invalid building dataset provided",
+      card_start_node: "Origin Node",
+      card_destination_exit: "Evacuation Exit",
+      card_total_cost: "Total Route Cost",
+      card_total_hops: "Corridor Hops",
+      route_sequence_label: "Evacuation Node Sequence:",
+      route_step_breakdown: "Step Cost Breakdown:",
+      corridor_cost: "Cost",
+      hops_unit: "segments",
+      zoom_in: "Zoom In",
+      zoom_out: "Zoom Out",
+      zoom_fit: "Fit Map",
+      zoom_reset: "Reset View",
+      legend_room: "Room",
+      legend_junction: "Junction",
+      legend_exit: "Exit",
+      legend_route: "Active Route",
+      legend_blocked: "Blocked",
+      graph_hint: "💡 Click any room/junction to set as Start. Click items in hazard list or nodes to toggle obstacles.",
+      modal_tests_title: "AI DevFest Automated Compliance Suite",
+      modal_tests_desc: "Verifies all 5 mandatory competition specifications plus tie-breaking and edge cases in real-time.",
+      test_run_all: "Run All Test Scenarios",
+      test_close: "Close Window",
+      test_status_pass: "PASSED",
+      test_status_fail: "FAILED",
+      test1_name: "Test 1: Baseline Route (R1 → E1, Cost 7)",
+      test2_name: "Test 2: Dynamic Rerouting (Block C2 → E2, Cost 11)",
+      test3_name: "Test 3: Exit Isolation (Close E1 & E2 → No Route)",
+      test4_name: "Test 4: Alternate Start (R2 → E2, Cost 7)",
+      test5_name: "Test 5: Blocked Start (R1 Blocked → Alert)",
+      test6_name: "Test 6: Lexicographical Exit Tie-Breaking (E1 < E2)",
+      test7_name: "Test 7: Lexicographical Node Sequence Tie-Breaking",
+      validation_error_title: "Dataset Validation Errors Detected",
+      validation_error_desc: "The uploaded file could not be loaded because it violated the Smart Escape schema rules:"
+    },
+    bn: {
+      app_title: "স্মার্ট এস্কেপ",
+      app_subtitle: "ইন্টারেক্টিভ ইভাকুয়েশন রুট সিমুলেটর",
+      badge_competition: "এআই ডেভফেস্ট ২০২৬ সংস্করণ",
+      btn_run_tests: "টেস্ট স্যুট চালান",
+      btn_reset: "প্রাথমিক অবস্থায় রিসেট",
+      btn_export_png: "ম্যাপ পিএনজি ডাউনলোড",
+      btn_audio_on: "শব্দ ইফেক্ট: চালু",
+      btn_audio_off: "শব্দ ইফেক্ট: বন্ধ",
+      btn_high_contrast: "হাই কনট্রাস্ট",
+      btn_walkthrough: "ইভাকুয়েশন সিমুলেশন",
+      btn_pause_walkthrough: "সিমুলেশন থামান",
+      panel_dataset: "বিল্ডিং ডেটাসেট",
+      panel_start: "শুরুর অবস্থান",
+      panel_hazards: "বিপদ ও প্রতিবন্ধকতা ব্যবস্থাপনা",
+      panel_route_telemetry: "ইভাকুয়েশন টেলিমেট্রি",
+      panel_graph_legend: "ম্যাপ নির্দেশিকা",
+      import_json_btn: "JSON ফাইল আপলোড",
+      choose_preset: "প্রিসেট সিনারিও নির্বাচন করুন:",
+      preset_sample: "ইস্ট অ্যানেক্স (অফিসিয়াল স্যাম্পল)",
+      preset_tiebreak: "রিসার্চ ফ্যাসিলিটি (টাই-ব্রেক টেস্ট)",
+      preset_complex: "মেট্রোপলিস সেন্টার (কমপ্লেক্স গ্রিড)",
+      preset_disconnected: "আইসোলেটেড অ্যানেক্স (বিচ্ছিন্ন)",
+      label_building_name: "ভবনের নাম:",
+      label_validation_status: "ভ্যালিডেশন:",
+      status_valid: "সঠিক স্কিমা",
+      status_invalid: "ভ্যালিডেশন ব্যর্থ",
+      nodes_count: "নোড",
+      edges_count: "করিডোর",
+      select_start_prompt: "ইভাকুয়েশন শুরুর কক্ষ বা জংশন নির্বাচন করুন:",
+      start_hint: "(শুধুমাত্র অবরুদ্ধ নয় এমন কক্ষ ও জংশন নির্বাচনযোগ্য)",
+      selected_start_label: "নির্বাচিত শুরু:",
+      none_selected: "কিছুই নির্বাচিত নয়",
+      node_type_room: "কক্ষ",
+      node_type_junction: "জংশন",
+      node_type_exit: "বহির্গমন",
+      hazard_tab_nodes: "কক্ষ ও জংশনসমূহ",
+      hazard_tab_edges: "করিডোরসমূহ",
+      hazard_tab_exits: "বহির্গমন পথসমূহ",
+      hazard_block_node: "নোড ব্লক করুন",
+      hazard_unblock_node: "নোড আনব্লক করুন",
+      hazard_block_edge: "করিডোর ব্লক করুন",
+      hazard_unblock_edge: "করিডোর আনব্লক করুন",
+      hazard_close_exit: "বহির্গমন বন্ধ করুন",
+      hazard_open_exit: "বহির্গমন খুলুন",
+      btn_clear_hazards: "সব মুছুন",
+      btn_restore_initial: "প্রাথমিক অবস্থা পুনরুদ্ধার",
+      hazard_count_summary: "সক্রিয় প্রতিবন্ধকতা:",
+      hazard_nodes_blocked: "ব্লক করা নোড",
+      hazard_edges_blocked: "ব্লক করা করিডোর",
+      hazard_exits_closed: "বন্ধ বহির্গমন",
+      status_route_found: "সর্বোত্তম রুট পাওয়া গেছে",
+      status_no_route: "কোনো পথ পাওয়া যায়নি",
+      status_start_blocked: "শুরুর অবস্থানটি ব্লক করা হয়েছে",
+      status_invalid_start: "অনুগ্রহ করে একটি বৈধ শুরুর অবস্থান নির্বাচন করুন",
+      status_exit_as_start: "বহির্গমন পথ থেকে ইভাকুয়েশন শুরু করা যাবে না",
+      status_invalid_data: "বিল্ডিং ডেটাসেটটি সঠিক নয়",
+      card_start_node: "শুরুর নোড",
+      card_destination_exit: "গন্তব্য বহির্গমন",
+      card_total_cost: "সর্বমোট রুট খরচ",
+      card_total_hops: "করিডোর ধাপ",
+      route_sequence_label: "ইভাকুয়েশন নোড অনুক্রম:",
+      route_step_breakdown: "ধাপভিত্তিক খরচের বিবরণ:",
+      corridor_cost: "খরচ",
+      hops_unit: "ধাপ",
+      zoom_in: "জুম ইন",
+      zoom_out: "জুম আউট",
+      zoom_fit: "ম্যাপ ফিট",
+      zoom_reset: "ভিউ রিসেট",
+      legend_room: "কক্ষ",
+      legend_junction: "জংশন",
+      legend_exit: "বহির্গমন",
+      legend_route: "সক্রিয় পথ",
+      legend_blocked: "অবরুদ্ধ",
+      graph_hint: "💡 শুরুর স্থান নির্ধারণে যে কোনো কক্ষ বা জংশনে ক্লিক করুন। নোড বা করিডোরে ক্লিক করে প্রতিবন্ধকতা টগল করুন।",
+      modal_tests_title: "এআই ডেভফেস্ট স্বয়ংক্রিয় কমপ্লায়েন্স স্যুট",
+      modal_tests_desc: "প্রতিযোগিতার ৫টি বাধ্যতামূলক টেস্ট এবং টাই-ব্রেকিং রুলস রিয়েল-টাইমে যাচাই করুন।",
+      test_run_all: "সকল টেস্ট একসাথে চালান",
+      test_close: "উইন্ডো বন্ধ করুন",
+      test_status_pass: "উত্তীর্ণ (PASSED)",
+      test_status_fail: "ব্যর্থ (FAILED)",
+      test1_name: "টেস্ট ১: বেসলাইন রুট (R1 → E1, খরচ 7)",
+      test2_name: "টেস্ট ২: ডায়নামিক রি-রাউটিং (Block C2 → E2, খরচ 11)",
+      test3_name: "টেস্ট ৩: এক্সিট বিচ্ছিন্নকরণ (Close E1 & E2 → No Route)",
+      test4_name: "টেস্ট ৪: ভিন্ন শুরুর নোড (R2 → E2, খরচ 7)",
+      test5_name: "টেস্ট ৫: শুরুর নোড অবরুদ্ধ (R1 Blocked → Alert)",
+      test6_name: "টেস্ট ৬: লেক্সিকোগ্রাফিক্যাল এক্সিট টাই-ব্রেকিং (E1 < E2)",
+      test7_name: "টেস্ট ৭: লেক্সিকোগ্রাফিক্যাল নোড অনুক্রম টাই-ব্রেকিং",
+      validation_error_title: "ডেটাসেট ভ্যালিডেশন ত্রুটি পাওয়া গেছে",
+      validation_error_desc: "আপলোড করা ফাইলটি স্মার্ট এস্কেপ স্কিমার শর্ত পূরণ করতে পারেনি:"
+    }
+  };
+
+  // ==========================================
+  // I18N MANAGER
+  // ==========================================
+  class I18nManager {
+    constructor(lang = 'en') {
+      this.currentLang = lang;
+      this.listeners = [];
+    }
+    setLanguage(lang) {
+      if (TRANSLATIONS[lang]) {
+        this.currentLang = lang;
+        this.notify();
+      }
+    }
+    t(key) {
+      const dict = TRANSLATIONS[this.currentLang] || TRANSLATIONS.en;
+      return dict[key] || TRANSLATIONS.en[key] || key;
+    }
+    subscribe(fn) {
+      this.listeners.push(fn);
+    }
+    notify() {
+      this.listeners.forEach(fn => fn(this.currentLang));
+    }
+    updateDOM() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = this.t(key);
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        el.setAttribute('title', this.t(key));
+      });
+      document.documentElement.lang = this.currentLang;
+    }
+  }
+
+  // ==========================================
+  // SCHEMA VALIDATOR
+  // ==========================================
+  class DatasetValidator {
+    static validate(data) {
+      const errors = [];
+      const warnings = [];
+
+      if (!data || typeof data !== 'object' || Array.isArray(data)) {
+        return { valid: false, errors: ['Imported data must be a valid JSON object.'], warnings: [] };
+      }
+
+      // 1. Building Name
+      if (typeof data.building !== 'string' || data.building.trim().length === 0) {
+        errors.push('Property "building" must be a non-empty string.');
+      }
+
+      // 2. Nodes Array
+      if (!Array.isArray(data.nodes)) {
+        errors.push('Property "nodes" must be an array.');
+      } else {
+        const count = data.nodes.length;
+        if (count < 2 || count > 60) {
+          errors.push(`Building must contain between 2 and 60 nodes (found ${count}).`);
+        }
+
+        const nodeIds = new Set();
+        const nodeMap = new Map();
+
+        data.nodes.forEach((node, idx) => {
+          const prefix = `Node [index ${idx}]:`;
+          if (!node || typeof node !== 'object') {
+            errors.push(`${prefix} must be an object.`);
+            return;
+          }
+
+          if (typeof node.id !== 'string' || node.id.trim().length === 0) {
+            errors.push(`${prefix} missing or empty string "id".`);
+          } else {
+            if (nodeIds.has(node.id)) {
+              errors.push(`${prefix} duplicate node ID "${node.id}".`);
+            }
+            nodeIds.add(node.id);
+          }
+
+          if (typeof node.label !== 'string' || node.label.trim().length === 0) {
+            errors.push(`${prefix} (ID: ${node.id || '?'}) must have a non-empty string "label".`);
+          }
+
+          const validTypes = ['room', 'junction', 'exit'];
+          if (!validTypes.includes(node.type)) {
+            errors.push(`${prefix} (ID: ${node.id || '?'}) invalid "type" "${node.type}". Must be: room, junction, or exit.`);
+          }
+
+          if (typeof node.x !== 'number' || Number.isNaN(node.x)) {
+            errors.push(`${prefix} (ID: ${node.id || '?'}) "x" coordinate must be a valid number.`);
+          }
+          if (typeof node.y !== 'number' || Number.isNaN(node.y)) {
+            errors.push(`${prefix} (ID: ${node.id || '?'}) "y" coordinate must be a valid number.`);
+          }
+
+          if (node.id && node.type) {
+            nodeMap.set(node.id, node);
+          }
+        });
+
+        // 3. Edges Array
+        if (!Array.isArray(data.edges)) {
+          errors.push('Property "edges" must be an array.');
+        } else {
+          const edgeCount = data.edges.length;
+          if (edgeCount < 1 || edgeCount > 150) {
+            errors.push(`Building must contain between 1 and 150 edges (found ${edgeCount}).`);
+          }
+
+          const edgeIds = new Set();
+          const seenPairs = new Set();
+
+          data.edges.forEach((edge, idx) => {
+            const prefix = `Edge [index ${idx}]:`;
+            if (!edge || typeof edge !== 'object') {
+              errors.push(`${prefix} must be an object.`);
+              return;
+            }
+
+            if (typeof edge.id !== 'string' || edge.id.trim().length === 0) {
+              errors.push(`${prefix} missing or empty string "id".`);
+            } else {
+              if (edgeIds.has(edge.id)) {
+                errors.push(`${prefix} duplicate edge ID "${edge.id}".`);
+              }
+              edgeIds.add(edge.id);
+            }
+
+            const fromValid = typeof edge.from === 'string' && nodeIds.has(edge.from);
+            const toValid = typeof edge.to === 'string' && nodeIds.has(edge.to);
+
+            if (!fromValid) errors.push(`${prefix} "from" node "${edge.from}" does not exist.`);
+            if (!toValid) errors.push(`${prefix} "to" node "${edge.to}" does not exist.`);
+
+            if (fromValid && toValid && edge.from === edge.to) {
+              errors.push(`${prefix} self-loop detected on node "${edge.from}".`);
+            }
+
+            if (fromValid && toValid && edge.from !== edge.to) {
+              const pairKey = [edge.from, edge.to].sort().join(':::');
+              if (seenPairs.has(pairKey)) {
+                errors.push(`${prefix} duplicate corridor between "${edge.from}" and "${edge.to}".`);
+              }
+              seenPairs.add(pairKey);
+            }
+
+            if (!Number.isInteger(edge.cost) || edge.cost <= 0) {
+              errors.push(`${prefix} "cost" must be a positive integer (> 0). Got: ${edge.cost}`);
+            }
+          });
+
+          // 4. Initial State
+          if (!data.initial_state || typeof data.initial_state !== 'object' || Array.isArray(data.initial_state)) {
+            errors.push('Property "initial_state" must exist and be an object.');
+          } else {
+            const { blocked_nodes, blocked_edges, closed_exits } = data.initial_state;
+
+            if (!Array.isArray(blocked_nodes)) {
+              errors.push('"initial_state.blocked_nodes" must be an array.');
+            } else {
+              blocked_nodes.forEach(nodeId => {
+                if (!nodeIds.has(nodeId)) errors.push(`"initial_state.blocked_nodes" references unknown node "${nodeId}".`);
+                const n = nodeMap.get(nodeId);
+                if (n && n.type === 'exit') errors.push(`"initial_state.blocked_nodes" contains exit "${nodeId}".`);
+              });
+            }
+
+            if (!Array.isArray(blocked_edges)) {
+              errors.push('"initial_state.blocked_edges" must be an array.');
+            } else {
+              blocked_edges.forEach(edgeId => {
+                if (!edgeIds.has(edgeId)) errors.push(`"initial_state.blocked_edges" references unknown edge "${edgeId}".`);
+              });
+            }
+
+            if (!Array.isArray(closed_exits)) {
+              errors.push('"initial_state.closed_exits" must be an array.');
+            } else {
+              closed_exits.forEach(exitId => {
+                if (!nodeIds.has(exitId)) errors.push(`"initial_state.closed_exits" references unknown node "${exitId}".`);
+                const n = nodeMap.get(exitId);
+                if (n && n.type !== 'exit') errors.push(`"initial_state.closed_exits" contains non-exit "${exitId}".`);
+              });
+            }
+          }
+        }
+      }
+
+      return { valid: errors.length === 0, errors, warnings };
+    }
+  }
+
+  // ==========================================
+  // ROUTING & TIE-BREAKING ENGINE
+  // ==========================================
+  class EvacuationRouter {
+    static compareNodeSequences(seqA, seqB) {
+      const len = Math.min(seqA.length, seqB.length);
+      for (let i = 0; i < len; i++) {
+        if (seqA[i] < seqB[i]) return -1;
+        if (seqA[i] > seqB[i]) return 1;
+      }
+      return seqA.length - seqB.length;
+    }
+
+    static calculateRoute(dataset, startNodeId, blockedNodes = [], blockedEdges = [], closedExits = []) {
+      const blockedNodeSet = new Set(blockedNodes);
+      const blockedEdgeSet = new Set(blockedEdges);
+      const closedExitSet = new Set(closedExits);
+
+      if (!dataset || !dataset.nodes || !dataset.edges) {
+        return { status: 'INVALID_DATA', messageKey: 'status_invalid_data', path: [], edgeSequence: [], stepCosts: [], totalCost: 0, start: startNodeId, destination: null };
+      }
+
+      const nodeMap = new Map(dataset.nodes.map(n => [n.id, n]));
+      const startNode = nodeMap.get(startNodeId);
+
+      if (!startNode) {
+        return { status: 'INVALID_START', messageKey: 'status_invalid_start', path: [], edgeSequence: [], stepCosts: [], totalCost: 0, start: startNodeId, destination: null };
+      }
+
+      if (startNode.type === 'exit') {
+        return { status: 'EXIT_AS_START', messageKey: 'status_exit_as_start', path: [], edgeSequence: [], stepCosts: [], totalCost: 0, start: startNodeId, destination: null };
+      }
+
+      if (blockedNodeSet.has(startNodeId)) {
+        return { status: 'START_BLOCKED', messageKey: 'status_start_blocked', path: [], edgeSequence: [], stepCosts: [], totalCost: 0, start: startNodeId, destination: null };
+      }
+
+      const adj = new Map();
+      dataset.nodes.forEach(n => adj.set(n.id, []));
+      const edgeByPair = new Map();
+
+      dataset.edges.forEach(edge => {
+        const u = edge.from;
+        const v = edge.to;
+        const cost = edge.cost;
+
+        if (blockedEdgeSet.has(edge.id)) return;
+        if (blockedNodeSet.has(u) || blockedNodeSet.has(v)) return;
+        if (closedExitSet.has(u) || closedExitSet.has(v)) return;
+
+        adj.get(u).push({ to: v, cost, edgeId: edge.id });
+        adj.get(v).push({ to: u, cost, edgeId: edge.id });
+
+        edgeByPair.set(`${u}:::${v}`, edge);
+        edgeByPair.set(`${v}:::${u}`, edge);
+      });
+
+      const dist = new Map();
+      const optimalPaths = new Map();
+
+      dataset.nodes.forEach(n => {
+        dist.set(n.id, Infinity);
+        optimalPaths.set(n.id, []);
+      });
+
+      dist.set(startNodeId, 0);
+      optimalPaths.set(startNodeId, [[startNodeId]]);
+
+      const visited = new Set();
+      const unvisited = new Set(dataset.nodes.map(n => n.id));
+
+      while (unvisited.size > 0) {
+        let curr = null;
+        let minD = Infinity;
+
+        for (const u of unvisited) {
+          const d = dist.get(u);
+          if (d < minD) {
+            minD = d;
+            curr = u;
+          }
+        }
+
+        if (curr === null || minD === Infinity) break;
+
+        unvisited.delete(curr);
+        visited.add(curr);
+
+        const currPaths = optimalPaths.get(curr);
+        const currDist = dist.get(curr);
+        const neighbors = adj.get(curr) || [];
+
+        for (const { to: neighbor, cost } of neighbors) {
+          if (visited.has(neighbor)) continue;
+
+          const newDist = currDist + cost;
+          const existingDist = dist.get(neighbor);
+
+          if (newDist < existingDist) {
+            dist.set(neighbor, newDist);
+            const newPaths = currPaths.map(p => [...p, neighbor]);
+            optimalPaths.set(neighbor, newPaths);
+          } else if (newDist === existingDist) {
+            const additionalPaths = currPaths.map(p => [...p, neighbor]);
+            const combined = [...optimalPaths.get(neighbor), ...additionalPaths];
+            optimalPaths.set(neighbor, combined);
+          }
+        }
+      }
+
+      const openExits = dataset.nodes.filter(n => n.type === 'exit' && !closedExitSet.has(n.id));
+      const reachableExits = [];
+
+      for (const exit of openExits) {
+        const exitDist = dist.get(exit.id);
+        if (exitDist !== Infinity && exitDist !== undefined) {
+          reachableExits.push({ exitId: exit.id, cost: exitDist, paths: optimalPaths.get(exit.id) || [] });
+        }
+      }
+
+      if (reachableExits.length === 0) {
+        return { status: 'NO_ROUTE', messageKey: 'status_no_route', path: [], edgeSequence: [], stepCosts: [], totalCost: 0, start: startNodeId, destination: null };
+      }
+
+      // Tie-Break 1: Min total cost
+      const minCost = Math.min(...reachableExits.map(e => e.cost));
+      const minCostExits = reachableExits.filter(e => e.cost === minCost);
+
+      // Tie-Break 2: Lexicographical exit ID
+      minCostExits.sort((a, b) => (a.exitId < b.exitId ? -1 : a.exitId > b.exitId ? 1 : 0));
+      const chosenExitObj = minCostExits[0];
+
+      // Tie-Break 3: Lexicographical path sequence
+      const candidatePaths = chosenExitObj.paths;
+      candidatePaths.sort((a, b) => EvacuationRouter.compareNodeSequences(a, b));
+      const optimalPath = candidatePaths[0] || [];
+
+      const edgeSequence = [];
+      const stepCosts = [];
+      for (let i = 0; i < optimalPath.length - 1; i++) {
+        const u = optimalPath[i];
+        const v = optimalPath[i + 1];
+        const edge = edgeByPair.get(`${u}:::${v}`);
+        if (edge) {
+          edgeSequence.push(edge.id);
+          stepCosts.push(edge.cost);
+        }
+      }
+
+      return {
+        status: 'FOUND',
+        messageKey: 'status_route_found',
+        path: optimalPath,
+        edgeSequence,
+        stepCosts,
+        totalCost: minCost,
+        start: startNodeId,
+        destination: chosenExitObj.exitId
+      };
+    }
+  }
+
+  // ==========================================
+  // DOTTED SURFACE PARTICLES CANVAS
+  // ==========================================
+  class DottedSurfaceBackground {
+    constructor(canvas) {
+      if (!canvas) return;
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d');
+      this.points = [];
+      this.time = 0;
+      this.mouseX = 0;
+      this.mouseY = 0;
+      this.targetMouseX = 0;
+      this.targetMouseY = 0;
+      this.init();
+    }
+    init() {
+      this.resize();
+      window.addEventListener('resize', () => this.resize());
+      window.addEventListener('mousemove', (e) => {
+        this.targetMouseX = (e.clientX / window.innerWidth - 0.5) * 50;
+        this.targetMouseY = (e.clientY / window.innerHeight - 0.5) * 50;
+      });
+      const loop = (timestamp) => {
+        this.time = timestamp * 0.0015;
+        this.mouseX += (this.targetMouseX - this.mouseX) * 0.05;
+        this.mouseY += (this.targetMouseY - this.mouseY) * 0.05;
+        this.render();
+        requestAnimationFrame(loop);
+      };
+      requestAnimationFrame(loop);
+    }
+    resize() {
+      this.width = this.canvas.width = window.innerWidth;
+      this.height = this.canvas.height = window.innerHeight;
+      this.buildGrid();
+    }
+    buildGrid() {
+      this.points = [];
+      const spacing = 40;
+      const cols = Math.ceil(this.width / spacing) + 8;
+      const rows = Math.ceil(this.height / spacing) + 6;
+      const startX = -((cols * spacing - this.width) / 2);
+      const startY = -((rows * spacing - this.height) / 2);
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          this.points.push({
+            baseX: startX + c * spacing,
+            baseY: startY + r * spacing,
+            r,
+            c,
+            phase: Math.sin(c * 0.3) + Math.cos(r * 0.3)
+          });
+        }
+      }
+    }
+    render() {
+      const ctx = this.ctx;
+      const w = this.width;
+      const h = this.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const baseSize = 3.5;
+      const waveH = 28;
+      const t = this.time;
+
+      for (let i = 0; i < this.points.length; i++) {
+        const p = this.points[i];
+        const wave1 = Math.sin(p.c * 0.18 + t + p.phase) * waveH;
+        const wave2 = Math.cos(p.r * 0.22 + t * 0.8) * (waveH * 0.6);
+        const zOffset = wave1 + wave2;
+        const scale = (zOffset + 70) / 100;
+        const dotSize = Math.max(0.8, baseSize * scale);
+
+        const px = p.baseX + this.mouseX * (scale * 0.25);
+        const py = p.baseY + zOffset * 0.45 + this.mouseY * (scale * 0.25);
+
+        if (px < -10 || px > w + 10 || py < -10 || py > h + 10) continue;
+
+        const normZ = (zOffset + waveH) / (waveH * 2);
+        let color = `rgba(56, 189, 248, ${0.25 + normZ * 0.45})`;
+        if (normZ <= 0.35) color = `rgba(20, 184, 166, ${0.15 + normZ * 0.25})`;
+
+        ctx.beginPath();
+        ctx.arc(px, py, dotSize, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+      }
+    }
+  }
+
+  // ==========================================
+  // GRAPH SVG RENDERER
+  // ==========================================
+  class GraphRenderer {
+    constructor(svgElement) {
+      this.svg = svgElement;
+      this.dataset = null;
+      this.state = null;
+      this.routeResult = null;
+      this.simulationStep = -1;
+
+      this.baseViewBox = { x: 0, y: 0, width: 800, height: 600 };
+      this.zoom = 1;
+      this.pan = { x: 0, y: 0 };
+      this.isPanning = false;
+      this.startPan = { x: 0, y: 0 };
+
+      this.onNodeClick = null;
+      this.onEdgeClick = null;
+
+      this.initEvents();
+    }
+
+    initEvents() {
+      this.svg.addEventListener('mousedown', (e) => {
+        if (e.target === this.svg || e.target.classList.contains('bg-grid-layer')) {
+          this.isPanning = true;
+          this.startPan = { x: e.clientX - this.pan.x, y: e.clientY - this.pan.y };
+          this.svg.style.cursor = 'grabbing';
+        }
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!this.isPanning) return;
+        this.pan.x = e.clientX - this.startPan.x;
+        this.pan.y = e.clientY - this.startPan.y;
+        this.applyTransform();
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (this.isPanning) {
+          this.isPanning = false;
+          this.svg.style.cursor = 'default';
+        }
+      });
+
+      this.svg.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const zoomFactor = e.deltaY < 0 ? 1.12 : 0.88;
+        this.setZoomAtPoint(this.zoom * zoomFactor, e.clientX, e.clientY);
+      }, { passive: false });
+    }
+
+    setZoomAtPoint(newZoom, clientX, clientY) {
+      newZoom = Math.max(0.4, Math.min(3.5, newZoom));
+      const rect = this.svg.getBoundingClientRect();
+      const svgX = clientX - rect.left;
+      const svgY = clientY - rect.top;
+
+      const scaleChange = newZoom / this.zoom;
+      this.pan.x = svgX - (svgX - this.pan.x) * scaleChange;
+      this.pan.y = svgY - (svgY - this.pan.y) * scaleChange;
+      this.zoom = newZoom;
+      this.applyTransform();
+    }
+
+    zoomIn() { this.zoom = Math.min(3.5, this.zoom * 1.25); this.applyTransform(); }
+    zoomOut() { this.zoom = Math.max(0.4, this.zoom / 1.25); this.applyTransform(); }
+    resetView() { this.zoom = 1; this.pan = { x: 0, y: 0 }; this.applyTransform(); }
+
+    fitToGraph() {
+      if (!this.dataset?.nodes?.length) return;
+      this.computeBounds();
+      this.resetView();
+    }
+
+    computeBounds() {
+      if (!this.dataset?.nodes?.length) return;
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      this.dataset.nodes.forEach(n => {
+        if (n.x < minX) minX = n.x;
+        if (n.x > maxX) maxX = n.x;
+        if (n.y < minY) minY = n.y;
+        if (n.y > maxY) maxY = n.y;
+      });
+      const pad = 60;
+      const width = Math.max(400, (maxX - minX) + pad * 2);
+      const height = Math.max(300, (maxY - minY) + pad * 2);
+      const x = minX - pad;
+      const y = minY - pad;
+
+      this.baseViewBox = { x, y, width, height };
+      this.svg.setAttribute('viewBox', `${x} ${y} ${width} ${height}`);
+    }
+
+    applyTransform() {
+      const g = this.svg.querySelector('#viewport-group');
+      if (g) {
+        const cx = this.baseViewBox.x + this.baseViewBox.width / 2;
+        const cy = this.baseViewBox.y + this.baseViewBox.height / 2;
+        g.setAttribute('transform', `translate(${this.pan.x}, ${this.pan.y}) translate(${cx}, ${cy}) scale(${this.zoom}) translate(${-cx}, ${-cy})`);
+      }
+    }
+
+    setData(dataset, state, routeResult, simStep = -1) {
+      this.dataset = dataset;
+      this.state = state;
+      this.routeResult = routeResult;
+      this.simulationStep = simStep;
+      this.render();
+    }
+
+    render() {
+      if (!this.dataset || !this.dataset.nodes) {
+        this.svg.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="#64748b" font-size="16">No dataset loaded</text>`;
+        return;
+      }
+
+      this.computeBounds();
+
+      const nodeMap = new Map(this.dataset.nodes.map(n => [n.id, n]));
+      const blockedNodes = new Set(this.state?.blocked_nodes || []);
+      const blockedEdges = new Set(this.state?.blocked_edges || []);
+      const closedExits = new Set(this.state?.closed_exits || []);
+      const selectedStart = this.state?.selectedStart;
+
+      const routeNodes = new Set(this.routeResult?.path || []);
+      const routeEdges = new Set(this.routeResult?.edgeSequence || []);
+
+      let html = `
+        <defs>
+          <filter id="route-glow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="5" result="blur1" />
+            <feMerge>
+              <feMergeNode in="blur1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="hazard-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <pattern id="hazard-stripe" width="10" height="10" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="0" y2="10" stroke="#ef4444" stroke-width="3" opacity="0.4" />
+          </pattern>
+        </defs>
+
+        <rect class="bg-grid-layer" x="${this.baseViewBox.x - 2000}" y="${this.baseViewBox.y - 2000}" width="${this.baseViewBox.width + 4000}" height="${this.baseViewBox.height + 4000}" fill="none" pointer-events="all" />
+
+        <g id="viewport-group">
+          <g class="edges-layer">
+      `;
+
+      // Render Corridors
+      this.dataset.edges.forEach(edge => {
+        const u = nodeMap.get(edge.from);
+        const v = nodeMap.get(edge.to);
+        if (!u || !v) return;
+
+        const isBlocked = blockedEdges.has(edge.id);
+        const isIncidentBlocked = blockedNodes.has(u.id) || blockedNodes.has(v.id) || closedExits.has(u.id) || closedExits.has(v.id);
+        const isRoute = routeEdges.has(edge.id);
+
+        let strokeColor = '#334155';
+        let strokeDash = 'none';
+        if (isBlocked) {
+          strokeColor = '#ef4444';
+          strokeDash = '6,6';
+        } else if (isIncidentBlocked) {
+          strokeColor = '#475569';
+          strokeDash = '4,4';
+        }
+
+        const midX = (u.x + v.x) / 2;
+        const midY = (u.y + v.y) / 2;
+
+        html += `
+          <g class="edge-group ${isBlocked ? 'edge-blocked' : ''}" data-edge-id="${edge.id}" style="cursor: pointer;">
+            <line x1="${u.x}" y1="${u.y}" x2="${v.x}" y2="${v.y}" stroke="transparent" stroke-width="24" />
+            <line x1="${u.x}" y1="${u.y}" x2="${v.x}" y2="${v.y}" stroke="${strokeColor}" stroke-width="3.5" stroke-dasharray="${strokeDash}" stroke-linecap="round" />
+            <g class="cost-badge" transform="translate(${midX}, ${midY})">
+              <rect x="-14" y="-10" width="28" height="20" rx="6" fill="${isBlocked ? '#450a0a' : isRoute ? '#064e3b' : '#0f172a'}" stroke="${isBlocked ? '#ef4444' : isRoute ? '#10b981' : '#475569'}" stroke-width="1.2" />
+              <text x="0" y="4" text-anchor="middle" fill="${isBlocked ? '#fca5a5' : isRoute ? '#34d399' : '#94a3b8'}" font-size="11" font-weight="700" font-family="JetBrains Mono, monospace">${edge.cost}</text>
+            </g>
+          </g>
+        `;
+      });
+
+      html += `</g>`;
+
+      // Render Active Route Layer
+      html += `<g class="route-highlight-layer">`;
+      if (this.routeResult && this.routeResult.status === 'FOUND' && this.routeResult.path.length > 1) {
+        const pathNodes = this.routeResult.path;
+        for (let i = 0; i < pathNodes.length - 1; i++) {
+          const u = nodeMap.get(pathNodes[i]);
+          const v = nodeMap.get(pathNodes[i + 1]);
+          if (!u || !v) continue;
+
+          html += `
+            <line x1="${u.x}" y1="${u.y}" x2="${v.x}" y2="${v.y}" stroke="#06b6d4" stroke-width="9" opacity="0.35" filter="url(#route-glow)" stroke-linecap="round" />
+            <line x1="${u.x}" y1="${u.y}" x2="${v.x}" y2="${v.y}" stroke="#00f2fe" stroke-width="4.5" stroke-linecap="round" />
+            <line class="route-flow-line" x1="${u.x}" y1="${u.y}" x2="${v.x}" y2="${v.y}" stroke="#ffffff" stroke-width="2.5" stroke-dasharray="8,12" stroke-linecap="round" />
+          `;
+        }
+      }
+      html += `</g>`;
+
+      // Render Nodes Layer
+      html += `<g class="nodes-layer">`;
+      this.dataset.nodes.forEach(node => {
+        const isStart = node.id === selectedStart;
+        const isBlocked = blockedNodes.has(node.id);
+        const isClosedExit = closedExits.has(node.id);
+        const isRoute = routeNodes.has(node.id);
+        const type = node.type;
+
+        let nodeClass = `node-item node-type-${type}`;
+        if (isStart) nodeClass += ' node-selected-start';
+        if (isBlocked) nodeClass += ' node-blocked';
+        if (isClosedExit) nodeClass += ' node-closed-exit';
+        if (isRoute) nodeClass += ' node-in-route';
+
+        html += `
+          <g class="${nodeClass}" data-node-id="${node.id}" transform="translate(${node.x}, ${node.y})" style="cursor: pointer;">
+            ${this.renderNodeShape(node, isStart, isBlocked, isClosedExit, isRoute)}
+            <text class="node-id-label" x="0" y="${type === 'exit' ? 32 : 30}" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700" font-family="Inter, sans-serif">
+              ${node.id}
+            </text>
+            <text class="node-desc-label" x="0" y="${type === 'exit' ? 44 : 42}" text-anchor="middle" fill="#94a3b8" font-size="9.5" font-weight="500" font-family="Inter, sans-serif">
+              ${node.label}
+            </text>
+          </g>
+        `;
+      });
+      html += `</g>`;
+
+      // Simulation Token
+      if (this.simulationStep >= 0 && this.routeResult?.path?.length > 0) {
+        const activeIdx = Math.min(this.simulationStep, this.routeResult.path.length - 1);
+        const activeNode = nodeMap.get(this.routeResult.path[activeIdx]);
+        if (activeNode) {
+          html += `
+            <g class="sim-token" transform="translate(${activeNode.x}, ${activeNode.y})">
+              <circle r="22" fill="none" stroke="#22d3ee" stroke-width="2.5" opacity="0.8">
+                <animate attributeName="r" values="18;26;18" dur="1.2s" repeatCount="indefinite" />
+              </circle>
+              <circle r="7" fill="#00f2fe" />
+            </g>
+          `;
+        }
+      }
+
+      html += `</g>`;
+      this.svg.innerHTML = html;
+      this.applyTransform();
+      this.bindElementEvents();
+    }
+
+    renderNodeShape(node, isStart, isBlocked, isClosedExit, isRoute) {
+      const type = node.type;
+      if (type === 'exit') {
+        let fill = isClosedExit ? '#450a0a' : isRoute ? '#064e3b' : '#062d22';
+        let stroke = isClosedExit ? '#ef4444' : isRoute ? '#10b981' : '#059669';
+        let icon = isClosedExit ? '🔒' : '🚪';
+        return `
+          <rect x="-24" y="-20" width="48" height="40" rx="10" fill="${fill}" stroke="${stroke}" stroke-width="${isRoute ? 3.5 : 2}" />
+          ${isClosedExit ? '<rect x="-24" y="-20" width="48" height="40" rx="10" fill="url(#hazard-stripe)" />' : ''}
+          <text x="0" y="3" text-anchor="middle" font-size="16">${icon}</text>
+        `;
+      }
+      if (type === 'room') {
+        let fill = isBlocked ? '#450a0a' : isStart ? '#083344' : isRoute ? '#1e1b4b' : '#171923';
+        let stroke = isBlocked ? '#ef4444' : isStart ? '#00f2fe' : isRoute ? '#818cf8' : '#4f46e5';
+        let icon = isBlocked ? '🚫' : isStart ? '📍' : '🏢';
+        return `
+          <rect x="-22" y="-18" width="44" height="36" rx="8" fill="${fill}" stroke="${stroke}" stroke-width="${isStart || isRoute ? 3.2 : 1.8}" />
+          ${isBlocked ? '<rect x="-22" y="-18" width="44" height="36" rx="8" fill="url(#hazard-stripe)" />' : ''}
+          <text x="0" y="2" text-anchor="middle" font-size="14">${icon}</text>
+        `;
+      }
+      let fill = isBlocked ? '#450a0a' : isStart ? '#083344' : isRoute ? '#0e3a47' : '#0f172a';
+      let stroke = isBlocked ? '#ef4444' : isStart ? '#00f2fe' : isRoute ? '#22d3ee' : '#06b6d4';
+      let icon = isBlocked ? '🚫' : isStart ? '📍' : '⊕';
+      return `
+        <circle r="18" fill="${fill}" stroke="${stroke}" stroke-width="${isStart || isRoute ? 3.2 : 1.8}" />
+        ${isBlocked ? '<circle r="18" fill="url(#hazard-stripe)" />' : ''}
+        <text x="0" y="5" text-anchor="middle" font-size="${isBlocked || isStart ? 13 : 15}" fill="#38bdf8">${icon}</text>
+      `;
+    }
+
+    bindElementEvents() {
+      this.svg.querySelectorAll('.node-item').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const nodeId = el.getAttribute('data-node-id');
+          if (this.onNodeClick) this.onNodeClick(nodeId, e.shiftKey || e.altKey);
+        });
+      });
+      this.svg.querySelectorAll('.edge-group').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const edgeId = el.getAttribute('data-edge-id');
+          if (this.onEdgeClick) this.onEdgeClick(edgeId);
+        });
+      });
+    }
+  }
+
+  // ==========================================
+  // SOUND FX
+  // ==========================================
+  class SoundFX {
+    constructor() {
+      this.enabled = true;
+      this.ctx = null;
+    }
+    init() {
+      if (!this.ctx && typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext)) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx();
+      }
+    }
+    toggle() {
+      this.enabled = !this.enabled;
+      return this.enabled;
+    }
+    playTone(freq, type = 'sine', duration = 0.1, volume = 0.08) {
+      if (!this.enabled) return;
+      try {
+        this.init();
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+      } catch (e) {}
+    }
+    click() { this.playTone(800, 'sine', 0.04, 0.04); }
+    hazardToggle(b) { this.playTone(b ? 280 : 620, b ? 'sawtooth' : 'sine', 0.12, 0.05); }
+    routeFound() {
+      if (!this.enabled) return;
+      this.playTone(523.25, 'triangle', 0.08, 0.05);
+      setTimeout(() => this.playTone(659.25, 'triangle', 0.08, 0.05), 60);
+      setTimeout(() => this.playTone(783.99, 'triangle', 0.12, 0.06), 120);
+    }
+    alert() {
+      if (!this.enabled) return;
+      this.playTone(320, 'sawtooth', 0.16, 0.07);
+    }
+  }
+
+  // ==========================================
+  // STATE STORE
+  // ==========================================
+  class StateManager {
+    constructor() {
+      this.dataset = null;
+      this.originalInitialState = { blocked_nodes: [], blocked_edges: [], closed_exits: [] };
+      this.blocked_nodes = new Set();
+      this.blocked_edges = new Set();
+      this.closed_exits = new Set();
+      this.selectedStart = null;
+      this.routeResult = null;
+      this.listeners = [];
+    }
+    subscribe(fn) { this.listeners.push(fn); }
+    notify(event = 'state_change') { this.listeners.forEach(fn => fn(this, event)); }
+
+    loadDataset(rawData) {
+      const validation = DatasetValidator.validate(rawData);
+      if (!validation.valid) {
+        this.dataset = null;
+        this.routeResult = null;
+        this.notify('validation_failed');
+        return validation;
+      }
+      this.dataset = JSON.parse(JSON.stringify(rawData));
+      const initial = rawData.initial_state || {};
+      this.originalInitialState = {
+        blocked_nodes: Array.isArray(initial.blocked_nodes) ? [...initial.blocked_nodes] : [],
+        blocked_edges: Array.isArray(initial.blocked_edges) ? [...initial.blocked_edges] : [],
+        closed_exits: Array.isArray(initial.closed_exits) ? [...initial.closed_exits] : []
+      };
+      this.blocked_nodes = new Set(this.originalInitialState.blocked_nodes);
+      this.blocked_edges = new Set(this.originalInitialState.blocked_edges);
+      this.closed_exits = new Set(this.originalInitialState.closed_exits);
+
+      const validStart = this.dataset.nodes.find(n => n.type !== 'exit' && !this.blocked_nodes.has(n.id))
+        || this.dataset.nodes.find(n => n.type !== 'exit');
+      this.selectedStart = validStart ? validStart.id : null;
+
+      this.recalculateRoute();
+      this.notify('dataset_loaded');
+      return validation;
+    }
+
+    setSelectedStart(id) {
+      if (!this.dataset) return;
+      const n = this.dataset.nodes.find(x => x.id === id);
+      if (!n || n.type === 'exit') return;
+      this.selectedStart = id;
+      this.recalculateRoute();
+      this.notify('start_changed');
+    }
+
+    toggleNodeHazard(id) {
+      if (!this.dataset) return;
+      const n = this.dataset.nodes.find(x => x.id === id);
+      if (!n) return;
+      if (n.type === 'exit') {
+        this.closed_exits.has(id) ? this.closed_exits.delete(id) : this.closed_exits.add(id);
+      } else {
+        this.blocked_nodes.has(id) ? this.blocked_nodes.delete(id) : this.blocked_nodes.add(id);
+      }
+      this.recalculateRoute();
+      this.notify('hazard_changed');
+    }
+
+    toggleEdgeHazard(id) {
+      if (!this.dataset) return;
+      this.blocked_edges.has(id) ? this.blocked_edges.delete(id) : this.blocked_edges.add(id);
+      this.recalculateRoute();
+      this.notify('hazard_changed');
+    }
+
+    resetToInitialState() {
+      if (!this.dataset) return;
+      this.blocked_nodes = new Set(this.originalInitialState.blocked_nodes);
+      this.blocked_edges = new Set(this.originalInitialState.blocked_edges);
+      this.closed_exits = new Set(this.originalInitialState.closed_exits);
+      this.recalculateRoute();
+      this.notify('reset');
+    }
+
+    clearAllHazards() {
+      if (!this.dataset) return;
+      this.blocked_nodes.clear();
+      this.blocked_edges.clear();
+      this.closed_exits.clear();
+      this.recalculateRoute();
+      this.notify('hazard_changed');
+    }
+
+    recalculateRoute() {
+      if (!this.dataset || !this.selectedStart) {
+        this.routeResult = null;
+        return;
+      }
+      this.routeResult = EvacuationRouter.calculateRoute(
+        this.dataset,
+        this.selectedStart,
+        Array.from(this.blocked_nodes),
+        Array.from(this.blocked_edges),
+        Array.from(this.closed_exits)
+      );
+    }
+
+    getSerializableState() {
+      return {
+        blocked_nodes: Array.from(this.blocked_nodes),
+        blocked_edges: Array.from(this.blocked_edges),
+        closed_exits: Array.from(this.closed_exits),
+        selectedStart: this.selectedStart
+      };
+    }
+  }
+
+  // ==========================================
+  // COMPLIANCE TEST RUNNER
+  // ==========================================
+  class TestRunner {
+    static runAllTests(sampleBuilding, tieBuilding) {
+      const results = [];
+
+      // Test 1: Baseline
+      const t1 = EvacuationRouter.calculateRoute(sampleBuilding, 'R1', [], [], []);
+      results.push({
+        nameKey: 'test1_name',
+        description: 'Start R1 -> E1 with cost 7',
+        actual: t1.status === 'FOUND' ? `Path: ${t1.path.join(' → ')}, Cost: ${t1.totalCost}` : t1.status,
+        passed: t1.status === 'FOUND' && t1.path.join('-') === 'R1-C1-C2-E1' && t1.totalCost === 7
+      });
+
+      // Test 2: Block C2
+      const t2 = EvacuationRouter.calculateRoute(sampleBuilding, 'R1', ['C2'], [], []);
+      results.push({
+        nameKey: 'test2_name',
+        description: 'Block C2 reroutes R1 -> E2 with cost 11',
+        actual: t2.status === 'FOUND' ? `Path: ${t2.path.join(' → ')}, Cost: ${t2.totalCost}` : t2.status,
+        passed: t2.status === 'FOUND' && t2.path.join('-') === 'R1-C1-C3-C4-E2' && t2.totalCost === 11
+      });
+
+      // Test 3: Close both exits
+      const t3 = EvacuationRouter.calculateRoute(sampleBuilding, 'R1', [], [], ['E1', 'E2']);
+      results.push({
+        nameKey: 'test3_name',
+        description: 'Close E1 & E2 results in No route available',
+        actual: `Status: ${t3.status}`,
+        passed: t3.status === 'NO_ROUTE'
+      });
+
+      // Test 4: Start R2
+      const t4 = EvacuationRouter.calculateRoute(sampleBuilding, 'R2', [], [], []);
+      results.push({
+        nameKey: 'test4_name',
+        description: 'Start R2 -> E2 with cost 7',
+        actual: t4.status === 'FOUND' ? `Path: ${t4.path.join(' → ')}, Cost: ${t4.totalCost}` : t4.status,
+        passed: t4.status === 'FOUND' && t4.path.join('-') === 'R2-C3-C4-E2' && t4.totalCost === 7
+      });
+
+      // Test 5: Blocked start R1
+      const t5 = EvacuationRouter.calculateRoute(sampleBuilding, 'R1', ['R1'], [], []);
+      results.push({
+        nameKey: 'test5_name',
+        description: 'Blocked start produces Starting location blocked',
+        actual: `Status: ${t5.status}`,
+        passed: t5.status === 'START_BLOCKED'
+      });
+
+      // Test 6: Exit Tie-Break
+      if (tieBuilding) {
+        const t6 = EvacuationRouter.calculateRoute(tieBuilding, 'R0', [], [], []);
+        results.push({
+          nameKey: 'test6_name',
+          description: 'Equal cost to E1 and E2 selects E1 (E1 < E2)',
+          actual: `Destination: ${t6.destination}, Cost: ${t6.totalCost}`,
+          passed: t6.status === 'FOUND' && t6.destination === 'E1' && t6.totalCost === 6
+        });
+      }
+
+      // Test 7: Node Sequence Tie-Break
+      const syntheticTieGraph = {
+        building: "Tie Path Graph",
+        nodes: [
+          { id: "S", label: "Start", type: "room", x: 0, y: 0 },
+          { id: "A", label: "Node A", type: "junction", x: 10, y: 10 },
+          { id: "B", label: "Node B", type: "junction", x: 10, y: -10 },
+          { id: "EX", label: "Exit", type: "exit", x: 20, y: 0 }
+        ],
+        edges: [
+          { id: "E1", from: "S", to: "A", cost: 5 },
+          { id: "E2", from: "A", to: "EX", cost: 5 },
+          { id: "E3", from: "S", to: "B", cost: 5 },
+          { id: "E4", from: "B", to: "EX", cost: 5 }
+        ],
+        initial_state: { blocked_nodes: [], blocked_edges: [], closed_exits: [] }
+      };
+      const t7 = EvacuationRouter.calculateRoute(syntheticTieGraph, 'S', [], [], []);
+      results.push({
+        nameKey: 'test7_name',
+        description: 'Equal cost paths chooses lexicographical order [S,A,EX]',
+        actual: `Path: ${t7.path.join(' → ')}, Cost: ${t7.totalCost}`,
+        passed: t7.status === 'FOUND' && t7.path.join('-') === 'S-A-EX' && t7.totalCost === 10
+      });
+
+      return results;
+    }
+  }
+
+  // ==========================================
+  // APP CONTROLLER
+  // ==========================================
+  class SmartEscapeApp {
+    constructor() {
+      this.i18n = new I18nManager('en');
+      this.state = new StateManager();
+      this.sound = new SoundFX();
+      this.renderer = null;
+      this.dottedSurface = null;
+      this.currentHazardTab = 'nodes';
+      this.simulationTimer = null;
+      this.simulationStep = -1;
+      this.isSimulating = false;
+
+      this.presets = {
+        sample: PRESET_SAMPLE,
+        tiebreak: PRESET_TIEBREAK,
+        complex: PRESET_COMPLEX,
+        disconnected: PRESET_DISCONNECTED
+      };
+    }
+
+    bootstrap() {
+      const canvas = document.getElementById('dotted-surface-canvas');
+      if (canvas) this.dottedSurface = new DottedSurfaceBackground(canvas);
+
+      const svg = document.getElementById('building-graph-svg');
+      if (svg) this.renderer = new GraphRenderer(svg);
+
+      if (this.renderer) {
+        this.renderer.onNodeClick = (nodeId, isAlt) => {
+          const node = this.state.dataset?.nodes.find(n => n.id === nodeId);
+          if (!node) return;
+          if (isAlt || node.type === 'exit') {
+            this.state.toggleNodeHazard(nodeId);
+            this.sound.hazardToggle(this.state.blocked_nodes.has(nodeId) || this.state.closed_exits.has(nodeId));
+          } else {
+            this.state.setSelectedStart(nodeId);
+            this.sound.click();
+          }
+        };
+
+        this.renderer.onEdgeClick = (edgeId) => {
+          this.state.toggleEdgeHazard(edgeId);
+          this.sound.hazardToggle(this.state.blocked_edges.has(edgeId));
+        };
+      }
+
+      this.state.subscribe((_, event) => {
+        if (event === 'dataset_loaded' || event === 'reset' || event === 'hazard_changed' || event === 'start_changed') {
+          if (this.state.routeResult?.status === 'FOUND') this.sound.routeFound();
+          else if (this.state.routeResult?.status === 'START_BLOCKED' || this.state.routeResult?.status === 'NO_ROUTE') this.sound.alert();
+        }
+        this.updateUI();
+      });
+
+      this.i18n.subscribe(() => {
+        this.i18n.updateDOM();
+        this.updateUI();
+      });
+
+      this.bindDOMEvents();
+      this.state.loadDataset(PRESET_SAMPLE);
+      this.i18n.updateDOM();
+      this.updateUI();
+    }
+
+    bindDOMEvents() {
+      // Language Toggle
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const lang = btn.getAttribute('data-lang');
+          document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.i18n.setLanguage(lang);
+          this.sound.click();
+        });
+      });
+
+      // Preset Selector
+      const presetSelect = document.getElementById('preset-selector');
+      if (presetSelect) {
+        presetSelect.addEventListener('change', (e) => {
+          const data = this.presets[e.target.value];
+          if (data) {
+            this.stopSimulation();
+            this.state.loadDataset(data);
+            this.sound.click();
+          }
+        });
+      }
+
+      // JSON File Import
+      const fileInput = document.getElementById('file-input');
+      const importBtn = document.getElementById('btn-import-file');
+      if (importBtn && fileInput) {
+        importBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            try {
+              const parsed = JSON.parse(ev.target.result);
+              this.stopSimulation();
+              const res = this.state.loadDataset(parsed);
+              if (!res.valid) {
+                this.showValidationErrorModal(res.errors);
+                this.sound.alert();
+              } else {
+                this.sound.routeFound();
+              }
+            } catch (err) {
+              this.showValidationErrorModal(['Invalid JSON syntax: ' + err.message]);
+              this.sound.alert();
+            }
+            fileInput.value = '';
+          };
+          reader.readAsText(file);
+        });
+      }
+
+      // Reset
+      document.getElementById('btn-reset-initial')?.addEventListener('click', () => {
+        this.stopSimulation();
+        this.state.resetToInitialState();
+        this.sound.click();
+      });
+
+      // Clear Hazards
+      document.getElementById('btn-clear-hazards')?.addEventListener('click', () => {
+        this.stopSimulation();
+        this.state.clearAllHazards();
+        this.sound.click();
+      });
+
+      // Audio Toggle
+      const audioBtn = document.getElementById('btn-toggle-audio');
+      if (audioBtn) {
+        audioBtn.addEventListener('click', () => {
+          const on = this.sound.toggle();
+          audioBtn.textContent = on ? this.i18n.t('btn_audio_on') : this.i18n.t('btn_audio_off');
+        });
+      }
+
+      // Contrast Toggle
+      document.getElementById('btn-toggle-contrast')?.addEventListener('click', () => {
+        document.body.classList.toggle('high-contrast');
+        this.sound.click();
+      });
+
+      // Simulation Walkthrough
+      const simBtn = document.getElementById('btn-simulation-walkthrough');
+      if (simBtn) {
+        simBtn.addEventListener('click', () => {
+          this.isSimulating ? this.stopSimulation() : this.startSimulation();
+        });
+      }
+
+      // Zoom Controls
+      document.getElementById('btn-zoom-in')?.addEventListener('click', () => this.renderer?.zoomIn());
+      document.getElementById('btn-zoom-out')?.addEventListener('click', () => this.renderer?.zoomOut());
+      document.getElementById('btn-zoom-fit')?.addEventListener('click', () => this.renderer?.fitToGraph());
+      document.getElementById('btn-zoom-reset')?.addEventListener('click', () => this.renderer?.resetView());
+
+      // Export PNG
+      document.getElementById('btn-export-png')?.addEventListener('click', () => this.exportMapPNG());
+
+      // Hazard Tabs
+      document.querySelectorAll('.hazard-tab-btn').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.hazard-tab-btn').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          this.currentHazardTab = tab.getAttribute('data-tab');
+          this.renderHazardList();
+          this.sound.click();
+        });
+      });
+
+      // Test Suite Modal
+      const modalTests = document.getElementById('modal-test-suite');
+      document.getElementById('btn-run-tests')?.addEventListener('click', () => {
+        modalTests?.classList.add('active');
+        this.runAndRenderTestSuite();
+      });
+      document.getElementById('btn-close-tests')?.addEventListener('click', () => modalTests?.classList.remove('active'));
+      document.getElementById('btn-exec-all-tests')?.addEventListener('click', () => this.runAndRenderTestSuite());
+
+      // Validation Modal
+      document.getElementById('btn-close-val-modal')?.addEventListener('click', () => {
+        document.getElementById('modal-validation-error')?.classList.remove('active');
+      });
+    }
+
+    updateUI() {
+      const dataset = this.state.dataset;
+      const route = this.state.routeResult;
+
+      const bName = document.getElementById('display-building-name');
+      const bMetaName = document.getElementById('meta-building-name');
+      const bNodes = document.getElementById('meta-nodes-count');
+      const bEdges = document.getElementById('meta-edges-count');
+      const bStatus = document.getElementById('meta-validation-status');
+
+      if (dataset) {
+        if (bName) bName.textContent = dataset.building;
+        if (bMetaName) bMetaName.textContent = dataset.building;
+        if (bNodes) bNodes.textContent = dataset.nodes.length;
+        if (bEdges) bEdges.textContent = dataset.edges.length;
+        if (bStatus) {
+          bStatus.textContent = this.i18n.t('status_valid');
+          bStatus.className = 'status-pill valid';
+        }
+      } else {
+        if (bStatus) {
+          bStatus.textContent = this.i18n.t('status_invalid');
+          bStatus.className = 'status-pill invalid';
+        }
+      }
+
+      this.renderStartPills();
+      this.renderHazardList();
+
+      const bN = document.getElementById('count-blocked-nodes');
+      const bE = document.getElementById('count-blocked-edges');
+      const cX = document.getElementById('count-closed-exits');
+      if (bN) bN.textContent = this.state.blocked_nodes.size;
+      if (bE) bE.textContent = this.state.blocked_edges.size;
+      if (cX) cX.textContent = this.state.closed_exits.size;
+
+      this.renderRouteTelemetry();
+      this.renderer?.setData(dataset, this.state.getSerializableState(), route, this.simulationStep);
+    }
+
+    renderStartPills() {
+      const container = document.getElementById('start-pills-container');
+      if (!container || !this.state.dataset) return;
+      container.innerHTML = '';
+
+      this.state.dataset.nodes.forEach(node => {
+        if (node.type === 'exit') return;
+        const isBlocked = this.state.blocked_nodes.has(node.id);
+        const isSelected = this.state.selectedStart === node.id;
+
+        const btn = document.createElement('button');
+        btn.className = `start-pill-btn ${isSelected ? 'active' : ''} ${isBlocked ? 'blocked' : ''}`;
+        btn.innerHTML = `<span>${node.type === 'room' ? '🏠' : '⊕'}</span> <span>${node.id} (${node.label})</span>`;
+        btn.disabled = isBlocked;
+
+        btn.addEventListener('click', () => {
+          if (!isBlocked) {
+            this.stopSimulation();
+            this.state.setSelectedStart(node.id);
+            this.sound.click();
+          }
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    renderHazardList() {
+      const container = document.getElementById('hazard-items-list');
+      if (!container || !this.state.dataset) return;
+      container.innerHTML = '';
+      const tab = this.currentHazardTab;
+
+      if (tab === 'nodes') {
+        this.state.dataset.nodes.filter(n => n.type !== 'exit').forEach(node => {
+          const isBlocked = this.state.blocked_nodes.has(node.id);
+          const row = document.createElement('div');
+          row.className = `hazard-item-row ${isBlocked ? 'is-blocked' : ''}`;
+          row.innerHTML = `
+            <div><strong>${node.id}</strong> - ${node.label} <span style="color: var(--text-muted); font-size: 0.7rem;">[${node.type}]</span></div>
+            <button class="btn hazard-toggle-btn ${isBlocked ? 'btn-danger-outline' : 'btn-emerald'}">
+              ${isBlocked ? this.i18n.t('hazard_unblock_node') : this.i18n.t('hazard_block_node')}
+            </button>
+          `;
+          row.querySelector('button').addEventListener('click', () => {
+            this.stopSimulation();
+            this.state.toggleNodeHazard(node.id);
+            this.sound.hazardToggle(!isBlocked);
+          });
+          container.appendChild(row);
+        });
+      } else if (tab === 'edges') {
+        this.state.dataset.edges.forEach(edge => {
+          const isBlocked = this.state.blocked_edges.has(edge.id);
+          const row = document.createElement('div');
+          row.className = `hazard-item-row ${isBlocked ? 'is-blocked' : ''}`;
+          row.innerHTML = `
+            <div><strong>${edge.id}</strong>: ${edge.from} ↔ ${edge.to} <span style="color: var(--neon-cyan); font-weight:700;">(Cost: ${edge.cost})</span></div>
+            <button class="btn hazard-toggle-btn ${isBlocked ? 'btn-danger-outline' : 'btn-emerald'}">
+              ${isBlocked ? this.i18n.t('hazard_unblock_edge') : this.i18n.t('hazard_block_edge')}
+            </button>
+          `;
+          row.querySelector('button').addEventListener('click', () => {
+            this.stopSimulation();
+            this.state.toggleEdgeHazard(edge.id);
+            this.sound.hazardToggle(!isBlocked);
+          });
+          container.appendChild(row);
+        });
+      } else if (tab === 'exits') {
+        this.state.dataset.nodes.filter(n => n.type === 'exit').forEach(exit => {
+          const isClosed = this.state.closed_exits.has(exit.id);
+          const row = document.createElement('div');
+          row.className = `hazard-item-row ${isClosed ? 'is-blocked' : ''}`;
+          row.innerHTML = `
+            <div><strong>${exit.id}</strong> - ${exit.label}</div>
+            <button class="btn hazard-toggle-btn ${isClosed ? 'btn-danger-outline' : 'btn-emerald'}">
+              ${isClosed ? this.i18n.t('hazard_open_exit') : this.i18n.t('hazard_close_exit')}
+            </button>
+          `;
+          row.querySelector('button').addEventListener('click', () => {
+            this.stopSimulation();
+            this.state.toggleNodeHazard(exit.id);
+            this.sound.hazardToggle(!isClosed);
+          });
+          container.appendChild(row);
+        });
+      }
+    }
+
+    renderRouteTelemetry() {
+      const route = this.state.routeResult;
+      const statusBanner = document.getElementById('route-status-banner');
+      const startCard = document.getElementById('telemetry-start-node');
+      const exitCard = document.getElementById('telemetry-exit-node');
+      const costCard = document.getElementById('telemetry-total-cost');
+      const hopsCard = document.getElementById('telemetry-total-hops');
+      const seqFlow = document.getElementById('route-sequence-flow');
+
+      if (!route) {
+        if (statusBanner) {
+          statusBanner.className = 'route-status-banner status-INVALID_START';
+          statusBanner.textContent = this.i18n.t('status_invalid_start');
+        }
+        return;
+      }
+
+      if (statusBanner) {
+        statusBanner.className = `route-status-banner status-${route.status}`;
+        statusBanner.textContent = this.i18n.t(route.messageKey);
+      }
+
+      if (startCard) startCard.textContent = route.start || '--';
+      if (exitCard) exitCard.textContent = route.destination || '--';
+      if (costCard) costCard.textContent = route.status === 'FOUND' ? route.totalCost : '--';
+      if (hopsCard) hopsCard.textContent = route.status === 'FOUND' ? route.edgeSequence.length : '--';
+
+      if (seqFlow) {
+        seqFlow.innerHTML = '';
+        if (route.status === 'FOUND' && route.path.length > 0) {
+          route.path.forEach((nodeId, idx) => {
+            const isStart = idx === 0;
+            const isExit = idx === route.path.length - 1;
+            const pill = document.createElement('div');
+            pill.className = `sequence-node-pill ${isStart ? 'is-start' : ''} ${isExit ? 'is-exit' : ''}`;
+            pill.innerHTML = `${isStart ? '📍' : isExit ? '🚪' : '⚡'} ${nodeId}`;
+            seqFlow.appendChild(pill);
+
+            if (idx < route.path.length - 1) {
+              const stepCost = route.stepCosts[idx] || '';
+              const arrow = document.createElement('div');
+              arrow.className = 'sequence-arrow';
+              arrow.innerHTML = `<span>➔</span><span class="step-cost-label">+${stepCost}</span>`;
+              seqFlow.appendChild(arrow);
+            }
+          });
+        } else {
+          seqFlow.innerHTML = `<span style="color: var(--text-dim); font-size: 0.85rem;">${this.i18n.t('status_no_route')}</span>`;
+        }
+      }
+    }
+
+    startSimulation() {
+      const route = this.state.routeResult;
+      if (!route || route.status !== 'FOUND' || route.path.length === 0) return;
+      this.isSimulating = true;
+      this.simulationStep = 0;
+      const simBtn = document.getElementById('btn-simulation-walkthrough');
+      if (simBtn) simBtn.textContent = this.i18n.t('btn_pause_walkthrough');
+
+      clearInterval(this.simulationTimer);
+      this.simulationTimer = setInterval(() => {
+        this.simulationStep++;
+        if (this.simulationStep >= route.path.length) this.simulationStep = 0;
+        this.renderer?.setData(this.state.dataset, this.state.getSerializableState(), route, this.simulationStep);
+        this.sound.click();
+      }, 700);
+    }
+
+    stopSimulation() {
+      if (this.isSimulating) {
+        clearInterval(this.simulationTimer);
+        this.isSimulating = false;
+        this.simulationStep = -1;
+        const simBtn = document.getElementById('btn-simulation-walkthrough');
+        if (simBtn) simBtn.textContent = this.i18n.t('btn_walkthrough');
+        this.renderer?.setData(this.state.dataset, this.state.getSerializableState(), this.state.routeResult, -1);
+      }
+    }
+
+    runAndRenderTestSuite() {
+      const list = document.getElementById('test-results-list');
+      if (!list) return;
+      const results = TestRunner.runAllTests(PRESET_SAMPLE, PRESET_TIEBREAK);
+
+      list.innerHTML = '';
+      results.forEach(res => {
+        const item = document.createElement('div');
+        item.className = `test-row-item ${res.passed ? 'passed' : 'failed'}`;
+        item.innerHTML = `
+          <div>
+            <div style="font-weight: 700; font-size: 0.88rem; color: #ffffff; margin-bottom: 4px;">${this.i18n.t(res.nameKey)}</div>
+            <div style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 3px;">${res.description}</div>
+            <div style="font-size: 0.74rem; font-family: var(--font-mono); color: ${res.passed ? '#34d399' : '#f87171'};">Result: ${res.actual}</div>
+          </div>
+          <div class="test-badge ${res.passed ? 'pass' : 'fail'}">${res.passed ? this.i18n.t('test_status_pass') : this.i18n.t('test_status_fail')}</div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    showValidationErrorModal(errors) {
+      const modal = document.getElementById('modal-validation-error');
+      const list = document.getElementById('validation-error-list');
+      if (modal && list) {
+        list.innerHTML = errors.map(e => `<li style="margin-bottom: 6px; color: #fca5a5;">${e}</li>`).join('');
+        modal.classList.add('active');
+      }
+    }
+
+    exportMapPNG() {
+      const svg = document.getElementById('building-graph-svg');
+      if (!svg) return;
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      canvas.width = 1600;
+      canvas.height = 1000;
+
+      const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+
+      img.onload = () => {
+        ctx.fillStyle = '#07090e';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        const a = document.createElement('a');
+        a.download = `smart-escape-${this.state.dataset?.building || 'map'}.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      };
+      img.src = url;
+    }
+  }
+
+  // Self-executing instantiation immediately on ready
+  const app = new SmartEscapeApp();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => app.bootstrap());
+  } else {
+    app.bootstrap();
+  }
+  window.smartEscapeApp = app;
+
+})();
+
+  </script>
+</body>
+</html>
